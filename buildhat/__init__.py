@@ -3,5 +3,5 @@
 from .color import ColorSensor
 from .exc import *  # noqa: F403
 from .hat import Hat
-from .motors import Motor, MotorPair, PassiveMotor
+from .motors import Motor
 from .serinterface import BuildHAT
