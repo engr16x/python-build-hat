@@ -187,6 +187,7 @@ class Motor(Device):
         speed = self._speed_process(speed)
         cmd = f"port {self.port} ; set {speed}\r"
         if self._runmode == MotorRunmode.NONE:
+            self.run_for_degrees(0)
             pid = f"pid {self.port} 0 0 s1 1 0 {Kp} {Ki} {Kd} {windup} 0.01; "
             cmd = (f"port {self.port} ; select 0 ; selrate {self._interval}; "
                    f"{pid}"
