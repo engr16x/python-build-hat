@@ -138,37 +138,6 @@ class Motor(Device):
         self._oldpos = None
         self._runmode = MotorRunmode.NONE
 
-    def run(self, speed=None):
-        """Start motor
-
-        :param speed: Speed ranging from -100 to 100
-        :raises MotorError: Occurs when invalid speed specified
-        """
-        self._wait_for_nonblocking()
-        if self._runmode == MotorRunmode.FREE:
-            if self._currentspeed == speed:
-                # Already running at this speed, do nothing
-                return
-        elif self._runmode != MotorRunmode.NONE:
-            # Motor is running some other mode, wait for it to stop or stop() it yourself
-            return
-
-        if speed is None:
-            speed = self.default_speed
-        else:
-            if not (speed >= -100 and speed <= 100):
-                raise MotorError("Invalid Speed")
-        speed = self._speed_process(speed)
-        cmd = f"port {self.port} ; set {speed}\r"
-        if self._runmode == MotorRunmode.NONE:
-            pid = f"pid {self.port} 0 0 s1 1 0 0.003 0.01 0 10 0.01; "
-            cmd = (f"port {self.port} ; select 0 ; selrate {self._interval}; "
-                   f"{pid}"
-                   f"set {speed}\r")
-        self._runmode = MotorRunmode.FREE
-        self._currentspeed = speed
-        self._write(cmd)
-
     def run_PID(self, Kp, Ki, Kd, windup, speed=None):
         self._wait_for_nonblocking()
         if self._runmode == MotorRunmode.FREE:
@@ -202,33 +171,9 @@ class Motor(Device):
         :param speed: Speed ranging from -100 to 100
         :raises MotorError: Occurs when invalid speed specified
         """
-        self._wait_for_nonblocking()
-        if self._runmode == MotorRunmode.FREE:
-            if self._currentspeed == speed:
-                # Already running at this speed, do nothing
-                return
-        elif self._runmode != MotorRunmode.NONE:
-            # Motor is running some other mode, wait for it to stop or stop() it yourself
-            return
-
         if speed is None:
             speed = self.default_speed
-        else:
-            if not (speed >= -100 and speed <= 100):
-                raise MotorError("Invalid Speed")
-        speed = self._speed_process(speed)
-        cmd = f"port {self.port} ; set {speed}\r"
-        if self._runmode == MotorRunmode.NONE:
-            if self._rpm:
-                pid = f"pid_diff {self.port} 0 5 s2 0.0027777778 1 0 2.5 0 .4 0.01; "
-            else:
-                pid = f"pid {self.port} 0 0 s1 1 0 0.003 0.01 0 100 0.01; "
-            cmd = (f"port {self.port} ; select 0 ; selrate {self._interval}; "
-                   f"{pid}"
-                   f"set {speed}\r")
-        self._runmode = MotorRunmode.FREE
-        self._currentspeed = speed
-        self._write(cmd)
+        self.run_PID(.003, .01, 0, 100, speed )
 
     def stop(self):
         """Stop motor"""
