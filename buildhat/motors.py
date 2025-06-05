@@ -29,7 +29,18 @@ Lego Motor:
 
     Motor.stop()
         This function stops the motor, setting its speed to 0.
-    
+        
+    Motor.run_PID(Kp, Ki, Kd, windup, speed(optional))
+        This function runs the motor using a PID controller to keep the speed at a desired value.
+        Without a speed input, the motor will use default_speed. PID values for start are .003, 
+        .01, and 0, respectively. The windup defines the maximum value from the integral gain,
+        typically 100.
+        
+    Motor.pwm(speed)
+        This function takes an input from -1 to 1 and feeds this to the motor as a square wave with
+        constant frequency and duty cycle given as the speed input. This effectively allows for 
+        direct control of the motor force.
+        
     Motor.set_default_speed(default_speed):
         This function can be used to set the default speed of the motor, ranging from -100 
         to 100 as a proportion of the maximum speed of the motor. This is automatically set 
